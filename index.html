@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TG Blaster — Telegram Mass Sender Tool</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#0d1117;color:#e6edf3;font-family:'JetBrains Mono','Fira Code',ui-monospace,monospace;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  ::selection{background:rgba(46,160,67,.3);color:#fff}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:#0d1117}
+  ::-webkit-scrollbar-thumb{background:#30363d;border-radius:4px}
+  ::-webkit-scrollbar-thumb:hover{background:#484f58}
+  a{color:#58a6ff;text-decoration:none}
+  a:hover{text-decoration:underline}
+  button{cursor:pointer;font-family:inherit}
+  input,textarea,select{font-family:inherit}
+  code:not([class*="language-"]){font-family:inherit;background:rgba(46,160,67,.1);color:#3fb950;padding:1px 6px;border-radius:4px;font-size:.9em}
+  .container{max-width:1280px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid #21262d;background:#161b22;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+  .header-inner{display:flex;align-items:center;gap:16px;padding:14px 20px;max-width:1280px;margin:0 auto}
+  .logo{display:flex;align-items:center;gap:12px}
+  .logo-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#2ea043,#0d6efd);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(46,160,67,.25)}
+  .logo h1{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px}
+  .logo h1 span{color:#2ea043}
+  .logo p{font-size:11px;color:#7d8590}
+  .header-badges{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#21262d;color:#7d8590;font-size:11px;border:1px solid #30363d}
+  .badge-green{background:rgba(46,160,67,.15);color:#2ea043;border-color:rgba(46,160,67,.3)}
+  .badge svg{width:12px;height:12px}
+  .tabs{border-bottom:1px solid #21262d;background:#161b22;position:sticky;top:68px;z-index:99}
+  .tabs-inner{display:flex;gap:2px;overflow-x:auto;max-width:1280px;margin:0 auto;padding:0 20px}
+  .tab-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;background:transparent;border:none;border-bottom:2px solid transparent;color:#7d8590;font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s}
+  .tab-btn:hover{color:#e6edf3;background:rgba(33,38,45,.5)}
+  .tab-btn.active{color:#2ea043;border-bottom-color:#2ea043;background:rgba(46,160,67,.05)}
+  .tab-btn svg{width:15px;height:15px}
+  main{padding:32px 0 80px}
+  .tab-content{display:none;animation:fadeIn .3s ease}
+  .tab-content.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  .hero{position:relative;border-radius:16px;border:1px solid #21262d;background:linear-gradient(135deg,#161b22,#0d1117);padding:32px;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:0;right:0;width:250px;height:250px;background:radial-gradient(circle,rgba(46,160,67,.12),transparent 70%);transform:translate(40%,-40%)}
+  .hero::after{content:"";position:absolute;bottom:0;left:0;width:200px;height:200px;background:radial-gradient(circle,rgba(13,110,253,.1),transparent 70%);transform:translate(-40%,40%)}
+  .hero > *{position:relative}
+  .hero-badges{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .hero h2{font-size:28px;font-weight:800;color:#fff;margin-bottom:12px}
+  .hero p{color:#8b949e;max-width:700px;margin-bottom:24px}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;border:1px solid transparent;font-size:13px;font-weight:600;transition:all .15s;font-family:inherit}
+  .btn-primary{background:#2ea043;color:#fff}
+  .btn-primary:hover{background:#2ea043dd}
+  .btn-secondary{background:#21262d;color:#e6edf3;border-color:#30363d}
+  .btn-secondary:hover{background:#30363d}
+  .btn svg{width:15px;height:15px}
+  h3.section-title{font-size:17px;font-weight:700;color:#fff;margin:36px 0 14px;display:flex;align-items:center;gap:8px}
+  h3.section-title svg{color:#2ea043;width:18px;height:18px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .card{border-radius:12px;border:1px solid;padding:18px;transition:transform .15s}
+  .card:hover{transform:scale(1.01)}
+  .card svg{margin-bottom:10px;width:22px;height:22px}
+  .card h4{color:#fff;font-weight:700;margin-bottom:4px}
+  .card p{color:#8b949e;font-size:13px}
+  .c-blue{border-color:rgba(88,166,255,.3);background:rgba(88,166,255,.05);color:#58a6ff}
+  .c-purple{border-color:rgba(188,140,255,.3);background:rgba(188,140,255,.05);color:#bc8cff}
+  .c-yellow{border-color:rgba(210,153,34,.3);background:rgba(210,153,34,.05);color:#d29922}
+  .c-green{border-color:rgba(46,160,67,.3);background:rgba(46,160,67,.05);color:#3fb950}
+  .c-orange{border-color:rgba(255,123,114,.3);background:rgba(255,123,114,.05);color:#ff7b72}
+  .c-cyan{border-color:rgba(57,211,204,.3);background:rgba(57,211,204,.05);color:#39d3cc}
+  .table-wrap{border:1px solid #21262d;border-radius:12px;overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:12px 18px;background:#161b22;color:#8b949e;font-weight:600;border-bottom:1px solid #21262d}
+  th.center{text-align:center}
+  td{padding:12px 18px;border-bottom:1px solid #21262d;color:#c9d1d9}
+  tr:nth-child(even) td{background:rgba(22,27,34,.4)}
+  tr:last-child td{border-bottom:none}
+  .check{color:#2ea043;font-weight:700}
+  .cross{color:#f85149;font-weight:700}
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .flow-item{position:relative;border-radius:12px;border:1px solid #21262d;background:#161b22;padding:14px}
+  .flow-item .num{font-size:22px;font-weight:900;color:rgba(46,160,67,.3);margin-bottom:6px}
+  .flow-item .label{color:#fff;font-weight:700;font-size:13px;margin-bottom:3px}
+  .flow-item .desc{color:#7d8590;font-size:11px}
+  .alert{display:flex;gap:12px;padding:14px;border-radius:12px;border:1px solid;margin:18px 0;align-items:flex-start}
+  .alert svg{width:18px;height:18px;flex-shrink:0;margin-top:2px}
+  .alert-yellow{border-color:rgba(210,153,34,.3);background:rgba(210,153,34,.05)}
+  .alert-yellow svg{color:#d29922}
+  .alert-yellow .title{color:#d29922;font-weight:600;margin-bottom:3px;font-size:13px}
+  .alert-yellow p,.alert-yellow div:last-child{color:#8b949e;font-size:13px}
+  .alert-blue{border-color:rgba(88,166,255,.3);background:rgba(88,166,255,.05)}
+  .alert-blue svg{color:#58a6ff}
+  .alert-blue p{color:#8b949e;font-size:13px}
+  .alert-green{border-color:rgba(46,160,67,.3);background:rgba(46,160,67,.05)}
+  .alert-green svg{color:#3fb950}
+  .alert-green p{color:#8b949e;font-size:13px}
+  .code-block{border:1px solid #21262d;border-radius:12px;overflow:hidden;margin:14px 0}
+  .code-toolbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#161b22;border-bottom:1px solid #21262d}
+  .code-dots{display:flex;gap:6px}
+  .code-dots span{width:11px;height:11px;border-radius:50%}
+  .code-dots span:nth-child(1){background:#f85149aa}
+  .code-dots span:nth-child(2){background:#d29922aa}
+  .code-dots span:nth-child(3){background:#3fb950aa}
+  .code-filename{color:#7d8590;font-size:11px;margin-left:10px}
+  .code-actions{display:flex;gap:6px}
+  .code-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;background:transparent;border:none;color:#7d8590;font-size:11px;transition:all .15s}
+  .code-btn:hover{background:#30363d;color:#e6edf3}
+  .code-btn svg{width:12px;height:12px}
+  .code-body{max-height:640px;overflow:auto;background:#1a1b26}
+  .code-body pre{margin:0;padding:16px !important;background:#1a1b26 !important;font-size:12.5px;line-height:1.65}
+  .code-body pre[class*="language-"]{background:#1a1b26 !important}
+  pre[class*="language-"]{border-radius:0 !important}
+  .field{border-radius:12px;border:1px solid #21262d;background:#161b22;padding:16px;margin-bottom:10px}
+  .field.required{border-color:rgba(46,160,67,.3);background:rgba(46,160,67,.03)}
+  .field-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .field-name{color:#fff;font-weight:700}
+  .field-type{font-size:11px;font-weight:500;padding:2px 6px;border-radius:4px}
+  .t-string{color:#3fb950;background:rgba(63,185,80,.1)}
+  .t-number{color:#58a6ff;background:rgba(88,166,255,.1)}
+  .t-boolean{color:#d29922;background:rgba(210,153,34,.1)}
+  .tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;text-transform:uppercase}
+  .tag-req{background:rgba(248,81,73,.2);color:#f85149;border:1px solid rgba(248,81,73,.3)}
+  .tag-opt{background:rgba(139,148,158,.15);color:#8b949e;border:1px solid rgba(139,148,158,.3)}
+  .tag-sens{background:rgba(255,123,114,.15);color:#ff7b72;border:1px solid rgba(255,123,114,.3)}
+  .field-desc{color:#8b949e;font-size:13px;margin-bottom:10px}
+  .field-example{color:#7d8590;font-size:11px;margin-bottom:10px}
+  .field input,.field textarea,.field select{width:100%;background:#21262d;border:1px solid #30363d;border-radius:8px;padding:8px 12px;color:#e6edf3;font-size:13px;font-family:inherit;transition:border-color .15s}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#2ea043}
+  .field textarea{resize:none;min-height:80px}
+  .field-default{color:#7d8590;font-size:11px;margin-left:auto}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .stat{border-radius:12px;border:1px solid #21262d;background:#161b22;padding:14px;text-align:center}
+  .stat .val{font-size:24px;font-weight:900;margin-bottom:3px}
+  .stat .lbl{color:#7d8590;font-size:11px}
+  .stat.ok{border-color:rgba(46,160,67,.3);background:rgba(46,160,67,.05)}
+  .stat.ok .val{color:#3fb950}
+  .stat.warn{border-color:rgba(210,153,34,.3);background:rgba(210,153,34,.05)}
+  .stat.warn .val{color:#d29922}
+  .chat-list{border:1px solid #21262d;border-radius:12px;overflow:hidden;max-height:360px;overflow-y:auto}
+  .chat-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #21262d}
+  .chat-row:last-child{border-bottom:none}
+  .chat-row:nth-child(even){background:rgba(13,17,23,.5)}
+  .chat-row:nth-child(odd){background:rgba(22,27,34,.5)}
+  .chat-num{color:#7d8590;font-size:11px;width:24px;text-align:right;flex-shrink:0}
+  .chat-status{width:14px;height:14px;flex-shrink:0}
+  .chat-name{flex:1;color:#e6edf3;font-size:13px}
+  .chat-norm{color:#7d8590;font-size:11px}
+  .chat-del{background:transparent;border:none;color:#7d8590;padding:4px;border-radius:4px;transition:all .15s}
+  .chat-del:hover{color:#f85149;background:rgba(248,81,73,.1)}
+  .add-bar{display:flex;gap:8px}
+  .add-bar input{flex:1;background:#21262d;border:1px solid #30363d;border-radius:8px;padding:8px 12px;color:#e6edf3;font-size:13px}
+  .add-bar input:focus{outline:none;border-color:#2ea043}
+  .step{border-radius:12px;border:1px solid;background:#161b22;padding:20px;margin-bottom:14px}
+  .step-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .step-num{font-size:26px;font-weight:900;color:#30363d}
+  .step-title{color:#fff;font-weight:700;display:flex;align-items:center;gap:8px;font-size:15px}
+  .step-title svg{width:18px;height:18px}
+  ol{padding-left:20px;color:#c9d1d9;font-size:13px}
+  ol li{margin-bottom:8px}
+  ol li strong{color:#e6edf3}
+  .trouble{border-radius:8px;border:1px solid;padding:10px;margin-bottom:8px}
+  .trouble code{display:block;color:#ff7b72;font-size:12px;margin-bottom:3px;background:transparent;padding:0}
+  .trouble p{color:#8b949e;font-size:12px}
+  .tip-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px}
+  .tip-row svg{color:#3fb950;width:14px;height:14px;flex-shrink:0;margin-top:3px}
+  .tip-row span{color:#8b949e;font-size:13px}
+  .hidden{display:none !important}
+  .toggle-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;border:1px solid #21262d;background:#161b22;margin-bottom:14px}
+  .toggle-row button{background:transparent;border:none;color:#8b949e;font-size:13px;display:flex;align-items:center;gap:6px;padding:0}
+  .toggle-row button:hover{color:#e6edf3}
+  .toggle-row .hint{color:#484f58;font-size:11px}
+  .section{margin-bottom:28px}
+  .section > h2{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .section > h2 svg{color:#2ea043;width:20px;height:20px}
+  .section > p.subtitle{color:#7d8590;font-size:13px;margin-bottom:16px}
+  @media(max-width:768px){
+    .hero{padding:20px}
+    .hero h2{font-size:22px}
+    .stats{grid-template-columns:1fr}
+    .header-badges .badge:not(:last-child){display:none}
+    .tabs{top:62px}
+    .tab-btn{padding:10px 12px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+      </div>
+      <div>
+        <h1>TG<span>Blaster</span></h1>
+        <p>Telegram Mass Sender · Pyrogram Userbot</p>
+      </div>
+    </div>
+    <div class="header-badges">
+      <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Anti-FloodWait</div>
+      <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Session Auth</div>
+      <div class="badge badge-green">v2.0.0</div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner" id="tabs">
+    <button class="tab-btn active" data-tab="overview">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Обзор
+    </button>
+    <button class="tab-btn" data-tab="code">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      Скрипт (Python)
+    </button>
+    <button class="tab-btn" data-tab="config">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Конфигурация
+    </button>
+    <button class="tab-btn" data-tab="chats">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Список чатов
+    </button>
+    <button class="tab-btn" data-tab="instructions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      Инструкция
+    </button>
+  </div>
+</nav>
+
+<main class="container">
+
+<section class="tab-content active" id="overview">
+  <div class="hero">
+    <div class="hero-badges">
+      <span class="tag" style="background:rgba(46,160,67,.2);color:#2ea043;border:1px solid rgba(46,160,67,.3)">PYROGRAM USERBOT</span>
+      <span class="tag" style="background:rgba(88,166,255,.2);color:#58a6ff;border:1px solid rgba(88,166,255,.3)">PYTHON 3.10+</span>
+      <span class="tag" style="background:rgba(210,153,34,.2);color:#d29922;border:1px solid rgba(210,153,34,.3)">ASYNC</span>
+    </div>
+    <h2>Telegram Mass Sender Bot</h2>
+    <p>Надёжный скрипт для автоматической рассылки сообщений со ссылками по списку Telegram-чатов. Реализован на <strong style="color:#fff">Pyrogram</strong> (Userbot), поддерживает форматирование, антиспам-задержки, автовступление в чаты и подробное логирование.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="switchTab('code')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        Смотреть код
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <button class="btn btn-secondary" onclick="switchTab('instructions')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Инструкция запуска
+      </button>
+    </div>
+  </div>
+
+  <h3 class="section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Ключевые возможности
+  </h3>
+  <div class="cards">
+    <div class="card c-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><h4>Userbot (Pyrogram)</h4><p>Работает от имени реального аккаунта. Может писать в любые чаты без добавления бота.</p></div>
+    <div class="card c-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><h4>Автовступление</h4><p>Автоматически вступает в открытые группы и каналы перед отправкой, если аккаунта там нет.</p></div>
+    <div class="card c-yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><h4>Anti-FloodWait</h4><p>Случайные задержки от 30 до 120 секунд между отправками. Обработка FloodWaitError.</p></div>
+    <div class="card c-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg><h4>Сессионная авторизация</h4><p>Авторизация по номеру телефона. Сессия сохраняется — повторный вход не требуется.</p></div>
+    <div class="card c-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><h4>Гибкий формат</h4><p>Поддержка Markdown и HTML форматирования. Превью ссылок включается/выключается.</p></div>
+    <div class="card c-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><h4>Полное логирование</h4><p>Вывод статуса каждой отправки в консоль и запись в лог-файл. Итоговая статистика.</p></div>
+  </div>
+
+  <h3 class="section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Bot API vs Userbot — Почему выбран Pyrogram?
+  </h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Критерий</th><th class="center">Bot API</th><th class="center">Userbot (Pyrogram) ✓</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Пишет в чаты без добавления</td><td class="center cross">✗</td><td class="center check">✓</td></tr>
+        <tr><td>Может вступать в открытые чаты</td><td class="center cross">✗</td><td class="center check">✓</td></tr>
+        <tr><td>Нужен токен бота</td><td class="center check">✓</td><td class="center cross">✗</td></tr>
+        <tr><td>Работает от имени аккаунта</td><td class="center cross">✗</td><td class="center check">✓</td></tr>
+        <tr><td>Обход некоторых ограничений</td><td class="center cross">✗</td><td class="center check">✓</td></tr>
+        <tr><td>Простота настройки</td><td class="center check">✓</td><td class="center cross">✗</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/></svg>
+    Логика работы скрипта
+  </h3>
+  <div class="flow">
+    <div class="flow-item"><div class="num">01</div><div class="label">Загрузка конфига</div><div class="desc">Читает config.json с API ключами и параметрами</div></div>
+    <div class="flow-item"><div class="num">02</div><div class="label">Загрузка чатов</div><div class="desc">Читает chats.json со списком юзернеймов</div></div>
+    <div class="flow-item"><div class="num">03</div><div class="label">Авторизация</div><div class="desc">Подключается к Telegram, создаёт/загружает сессию</div></div>
+    <div class="flow-item"><div class="num">04</div><div class="label">Итерация по чатам</div><div class="desc">Проходит по каждому чату из списка</div></div>
+    <div class="flow-item"><div class="num">05</div><div class="label">Вступление (если нужно)</div><div class="desc">Пробует вступить в чат если аккаунта нет</div></div>
+    <div class="flow-item"><div class="num">06</div><div class="label">Отправка</div><div class="desc">Отправляет форматированное сообщение со ссылкой</div></div>
+    <div class="flow-item"><div class="num">07</div><div class="label">Пауза</div><div class="desc">Случайная задержка 30–120 сек перед следующим</div></div>
+    <div class="flow-item"><div class="num">08</div><div class="label">Статистика</div><div class="desc">Выводит итог: успешно/ошибок/пропущено</div></div>
+  </div>
+
+  <div class="alert alert-yellow">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <div>
+      <div class="title">⚠️ Важное предупреждение</div>
+      <p>Использование userbot'ов для массовой рассылки нарушает <strong style="color:#fff">Terms of Service Telegram</strong>. Аккаунт может быть заблокирован. Используйте скрипт только в образовательных целях или для рассылки в чаты, которые вы администрируете. Скрипт реализует защитные меры (задержки, обработка ошибок), но не даёт 100% гарантии защиты.</p>
+    </div>
+  </div>
+</section>
+
+<section class="tab-content" id="code">
+  <div class="section">
+    <h2>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      tgblaster.py — Основной скрипт
+    </h2>
+    <p class="subtitle">Полный код скрипта с подробными комментариями. Сохраните файл как <code>tgblaster.py</code> в папку проекта.</p>
+
+    <div class="alert alert-blue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <p>Скрипт использует библиотеку <strong style="color:#fff">Pyrogram</strong> (Userbot). При первом запуске потребуется ввести номер телефона и код подтверждения. Сессия сохраняется в файл <code>tgblaster_session.session</code> — повторный ввод не потребуется.</p>
+    </div>
+
+    <div class="alert alert-yellow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div><strong>Важно:</strong> Перед запуском убедитесь что создали и заполнили <code>config.json</code> и <code>chats.json</code>. Шаблоны смотрите во вкладках «Конфигурация» и «Список чатов».</div>
+    </div>
+
+    <div style="border-radius:12px;border:1px solid #21262d;background:#161b22;padding:14px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;color:#7d8590;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Зависимости</div>
+      <div class="code-block" style="margin:0">
+        <div class="code-toolbar">
+          <div style="display:flex;align-items:center">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-filename">terminal</span>
+          </div>
+          <div class="code-actions">
+            <button class="code-btn" onclick="copyCode('deps-code')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Копировать
+            </button>
+          </div>
+        </div>
+        <div class="code-body"><pre id="deps-code" class="language-bash">pip install pyrogram tgcrypto</pre></div>
+      </div>
+      <p style="color:#7d8590;font-size:12px;margin-top:8px"><code style="color:#ff7b72;background:transparent;padding:0">tgcrypto</code> — ускорение криптографии для Pyrogram (рекомендуется)</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-toolbar">
+        <div style="display:flex;align-items:center">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-filename">tgblaster.py</span>
+        </div>
+        <div class="code-actions">
+          <button class="code-btn" onclick="downloadCode('python-code','tgblaster.py')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Скачать
+          </button>
+          <button class="code-btn" onclick="copyCode('python-code')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Копировать
+          </button>
+        </div>
+      </div>
+      <div class="code-body"><pre id="python-code" class="language-python line-numbers"></pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="tab-content" id="config">
+  <div class="section">
+    <h2>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      config.json — Конфигурация скрипта
+    </h2>
+    <p class="subtitle">Заполните поля ниже для генерации готового <code>config.json</code> или скопируйте готовый шаблон.</p>
+
+    <div class="toggle-row">
+      <button id="sensitive-toggle" onclick="toggleSensitive()">
+        <svg id="sensitive-icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        <svg id="sensitive-icon-on" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span id="sensitive-text">Показать</span> чувствительные поля
+      </button>
+      <span class="hint">(API ID, API Hash, номер телефона)</span>
+    </div>
+
+    <div id="config-fields"></div>
+
+    <button class="btn btn-primary" onclick="generateConfig()" style="margin-top:8px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h0"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg>
+      Сгенерировать config.json
+    </button>
+
+    <div id="config-output" class="hidden" style="margin-top:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <h3 style="color:#fff;font-weight:700;display:flex;align-items:center;gap:8px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Готовый config.json
+        </h3>
+        <button class="code-btn" onclick="copyText(document.getElementById('config-output-json').innerText)" style="background:#21262d;padding:6px 12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Копировать
+        </button>
+      </div>
+      <div class="code-block">
+        <div class="code-toolbar">
+          <div style="display:flex;align-items:center">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-filename">config.json</span>
+          </div>
+          <div class="code-actions">
+            <button class="code-btn" onclick="downloadCode('config-output-json','config.json')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Скачать
+            </button>
+          </div>
+        </div>
+        <div class="code-body"><pre id="config-output-json" class="language-json"></pre></div>
+      </div>
+      <div class="alert alert-yellow" style="margin-top:10px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <p>Сохраните этот файл как <code>config.json</code> в ту же директорию, что и <code>tgblaster.py</code></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tab-content" id="chats">
+  <div class="section">
+    <h2>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      chats.json — Список чатов для рассылки
+    </h2>
+    <p class="subtitle">Добавьте юзернеймы чатов или ссылки на них. Скрипт принимает форматы: <code>@username</code>, <code>https://t.me/username</code>, <code>t.me/username</code></p>
+
+    <div class="stats">
+      <div class="stat"><div class="val" id="stat-total">0</div><div class="lbl">Всего чатов</div></div>
+      <div class="stat ok"><div class="val" id="stat-valid">0</div><div class="lbl">✅ Валидных</div></div>
+      <div class="stat warn"><div class="val" id="stat-warn">0</div><div class="lbl">⚠ С вопросами</div></div>
+    </div>
+
+    <div class="field" style="margin-bottom:14px">
+      <div style="color:#e6edf3;font-weight:600;font-size:13px;margin-bottom:10px">Добавить чат</div>
+      <div class="add-bar">
+        <input type="text" id="chat-input" placeholder="@username или https://t.me/username" onkeydown="if(event.key==='Enter')addChat()">
+        <button class="btn btn-primary" onclick="addChat()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Добавить
+        </button>
+      </div>
+      <button style="background:transparent;border:none;color:#7d8590;font-size:12px;margin-top:6px" onclick="document.getElementById('bulk-area').parentElement.classList.toggle('hidden')">
+        + Массовое добавление (вставить список)
+      </button>
+      <div class="hidden" style="margin-top:10px">
+        <textarea id="bulk-area" placeholder="@chat1&#10;@chat2&#10;https://t.me/chat3&#10;или через запятую: @a, @b, @c" rows="5"></textarea>
+        <button class="btn btn-primary" onclick="addBulk()" style="margin-top:8px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Добавить все
+        </button>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="color:#e6edf3;font-weight:600;font-size:13px">Список чатов (<span id="list-count">0</span>)</div>
+      <button class="code-btn" style="color:#f85149" onclick="clearChats()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Очистить всё
+      </button>
+    </div>
+
+    <div id="chat-list"></div>
+
+    <div id="chats-output" class="hidden" style="margin-top:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <h3 style="color:#fff;font-weight:700;font-size:14px">Готовый chats.json</h3>
+        <button class="code-btn" onclick="downloadCode('chats-output-json','chats.json')" style="background:#21262d;padding:6px 12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Скачать chats.json
+        </button>
+      </div>
+      <div class="code-block">
+        <div class="code-toolbar">
+          <div style="display:flex;align-items:center">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-filename">chats.json</span>
+          </div>
+          <div class="code-actions">
+            <button class="code-btn" onclick="downloadCode('chats-output-json','chats.json')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Скачать
+            </button>
+          </div>
+        </div>
+        <div class="code-body"><pre id="chats-output-json" class="language-json"></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tab-content" id="instructions">
+  <div class="section">
+    <h2>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      Инструкция по запуску
+    </h2>
+    <p class="subtitle">Пошаговое руководство от получения API-ключей до первого запуска рассылки.</p>
+
+    <div class="step" style="border-color:rgba(210,153,34,.3)">
+      <div class="step-head">
+        <div class="step-num">01</div>
+        <div class="step-title"><svg viewBox="0 0 24 24" fill="none" stroke="#d29922" stroke-width="2"><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>Получить API ID и API Hash на my.telegram.org</div>
+      </div>
+      <ol>
+        <li>Перейдите на <a href="https://my.telegram.org" target="_blank" rel="noreferrer">my.telegram.org ↗</a> и войдите через свой аккаунт</li>
+        <li>Нажмите <strong>«API development tools»</strong></li>
+        <li>Создайте новое приложение (заполните поля — App title, Short name). Платформа: Other.</li>
+        <li>Скопируйте <code style="color:#d29922;background:rgba(210,153,34,.1)">App api_id</code> и <code style="color:#d29922;background:rgba(210,153,34,.1)">App api_hash</code></li>
+      </ol>
+      <div class="alert alert-yellow" style="margin:12px 0 0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <p>Никому не передавайте API Hash! Это эквивалент пароля от вашего аккаунта.</p>
+      </div>
+    </div>
+
+    <div class="step" style="border-color:rgba(88,166,255,.3)">
+      <div class="step-head">
+        <div class="step-num">02</div>
+        <div class="step-title"><svg viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2"><path d="M16 16v3a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="14" height="14" rx="2"/></svg>Установить Python и зависимости</div>
+      </div>
+      <p style="color:#8b949e;font-size:13px;margin-bottom:10px">Требуется <strong style="color:#fff">Python 3.10+</strong>. Рекомендуется использовать виртуальное окружение:</p>
+      <div class="code-block" style="margin:0">
+        <div class="code-toolbar">
+          <div style="display:flex;align-items:center">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-filename">terminal</span>
+          </div>
+        </div>
+        <div class="code-body"><pre class="language-bash"># Создать виртуальное окружение
+python -m venv venv
+
+# Активировать (Linux/macOS)
+source venv/bin/activate
+
+# Активировать (Windows)
+.\venv\Scripts\activate
+
+# Установить зависимости
+pip install pyrogram tgcrypto</pre></div>
+      </div>
+      <p style="color:#7d8590;font-size:11px;margin-top:8px"><code style="color:#ff7b72;background:transparent;padding:0">tgcrypto</code> — C-расширение для ускорения шифрования MTProto (рекомендуется, но не обязательно).</p>
+    </div>
+
+    <div class="step" style="border-color:rgba(188,140,255,.3)">
+      <div class="step-head">
+        <div class="step-num">03</div>
+        <div class="step-title"><svg viewBox="0 0 24 24" fill="none" stroke="#bc8cff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Создать структуру файлов</div>
+      </div>
+      <p style="color:#8b949e;font-size:13px;margin-bottom:10px">Разместите все файлы в одной директории:</p>
+      <div class="code-block" style="margin:0">
+        <div class="code-toolbar">
+          <div style="display:flex;align-items:center">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-filename">структура проекта</span>
+          </div>
+        </div>
+        <div class="code-body"><pre class="language-bash">tgblaster/
+├── tgblaster.py       ← основной скрипт (вкладка «Скрипт»)
+├── config.json        ← конфигурация (вкладка «Конфигурация»)
+├── chats.json         ← список чатов (вкладка «Список чатов»)
+└── tgblaster.log      ← создастся автоматически при запуске</pre></div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="tip-row"><code style="color:#3fb950">config.json</code><span style="color:#7d8590;font-size:12px">— Заполните API ключи, текст сообщения и ссылку (вкладка «Конфигурация»)</span></div>
+        <div class="tip-row"><code style="color:#58a6ff">chats.json</code><span style="color:#7d8590;font-size:12px">— Список юзернеймов чатов для рассылки (вкладка «Список чатов»)</span></div>
+      </div>
+    </div>
+
+    <div class="step" style="border-color:rgba(46,160,67,.3)">
+      <div class="step-head">
+        <div class="step-num">04</div>
+        <div class="step-title"><svg viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Запустить скрипт</div>
+      </div>
+      <div class="code-block" style="margin:0 0 14px">
+        <div class="code-toolbar">
+          <div style="display:flex;align-items:center">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-filename">terminal</span>
+          </div>
+        </div>
+        <div class="code-body"><pre class="language-bash">python tgblaster.py</pre></div>
+      </div>
+      <p style="color:#e6edf3;font-weight:600;font-size:13px;margin-bottom:8px">При первом запуске:</p>
+      <div>
+        <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Pyrogram запросит номер телефона → введите в формате +79001234567</span></div>
+        <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Telegram пришлёт код подтверждения в приложение → введите его</span></div>
+        <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Если включена двухфакторная аутентификация → введите пароль</span></div>
+        <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Сессия сохранится в файл tgblaster_session.session</span></div>
+        <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>При следующих запусках авторизация не требуется</span></div>
+      </div>
+      <div class="alert alert-green" style="margin:12px 0 0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <p>Скрипт запросит подтверждение перед началом рассылки. Введите <code>да</code> для старта.</p>
+      </div>
+    </div>
+
+    <div class="step" style="border-color:rgba(57,211,204,.3)">
+      <div class="step-head">
+        <div class="step-num">05</div>
+        <div class="step-title"><svg viewBox="0 0 24 24" fill="none" stroke="#39d3cc" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Пример вывода в консоль</div>
+      </div>
+      <p style="color:#8b949e;font-size:13px;margin-bottom:10px">Так выглядит вывод скрипта в консоли во время рассылки:</p>
+      <div class="code-block" style="margin:0">
+        <div class="code-toolbar">
+          <div style="display:flex;align-items:center">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-filename">tgblaster — консоль</span>
+          </div>
+        </div>
+        <div class="code-body"><pre class="language-bash">════════════════════════════════════════════════════════════
+  🚀 TGBlaster запущен
+  📋 Всего чатов: 7
+  🔗 Целевая ссылка: https://example.com/promo
+  ⏱  Задержка: 30–120 сек
+  🕐 Начало: 2024-01-15 14:30:00
+════════════════════════════════════════════════════════════
+
+✅ Авторизован как: Иван Иванов (@ivan_ivanov) | ID: 123456789
+
+──────────────────────────────────────────────────────
+📤 [1/7] Отправка в: @python_ru
+  ➕ Вступили в чат: @python_ru
+  ✅ [Успешно] Сообщение отправлено в @python_ru
+  💤 Пауза 67.3 сек перед следующей отправкой...
+──────────────────────────────────────────────────────
+📤 [2/7] Отправка в: @django_framework
+  ✅ [Успешно] Сообщение отправлено в @django_framework
+  💤 Пауза 43.8 сек перед следующей отправкой...
+──────────────────────────────────────────────────────
+📤 [3/7] Отправка в: @closed_private_chat
+  ⛔ Приватный/недоступный чат @closed_private_chat: ...
+  ❌ [Ошибка] Не удалось отправить в @closed_private_chat
+  💤 Пауза 95.1 сек перед следующей отправкой...
+...
+
+════════════════════════════════════════════════════════════
+  📊 ИТОГОВАЯ СТАТИСТИКА РАССЫЛКИ
+════════════════════════════════════════════════════════════
+  📋 Всего чатов:  7
+  ✅ Успешно:      5
+  ❌ Ошибок:       2
+  ⏭  Пропущено:    0
+  📈 Успешность:   71.4%
+  🕐 Завершено:    2024-01-15 16:45:22
+════════════════════════════════════════════════════════════</pre></div>
+      </div>
+    </div>
+
+    <div style="border-radius:12px;border:1px solid #21262d;background:#161b22;padding:18px">
+      <h3 style="color:#fff;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d29922" stroke-width="2" width="16" height="16"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Частые проблемы и решения
+      </h3>
+      <div class="trouble" style="border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.05)"><code>⚠ Pyrogram не установлен / ModuleNotFoundError</code><p>→ Выполните: pip install pyrogram tgcrypto</p></div>
+      <div class="trouble" style="border-color:rgba(255,123,114,.3);background:rgba(255,123,114,.05)"><code>⚠ FloodWait: X seconds</code><p>→ Telegram просит подождать X секунд. Скрипт обрабатывает это автоматически. Увеличьте delay_min/delay_max в config.json</p></div>
+      <div class="trouble" style="border-color:rgba(210,153,34,.3);background:rgba(210,153,34,.05)"><code>⚠ ChatWriteForbidden</code><p>→ Нет прав писать в чат. Чат может быть закрыт для неучастников или аккаунт замьючен.</p></div>
+      <div class="trouble" style="border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.05)"><code>⚠ UserDeactivatedBan</code><p>→ Аккаунт заблокирован Telegram. Слишком агрессивные рассылки. Используйте другой аккаунт.</p></div>
+      <div class="trouble" style="border-color:rgba(88,166,255,.3);background:rgba(88,166,255,.05)"><code>⚠ Сессионный файл повреждён</code><p>→ Удалите файл tgblaster_session.session и запустите заново (потребуется повторная авторизация).</p></div>
+    </div>
+
+    <div style="border-radius:12px;border:1px solid #21262d;background:#161b22;padding:18px;margin-top:14px">
+      <h3 style="color:#fff;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2" width="16" height="16"><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
+        Рекомендации по безопасности
+      </h3>
+      <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Никогда не публикуйте config.json с реальными API ключами в публичные репозитории</span></div>
+      <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Добавьте config.json и *.session в .gitignore если используете Git</span></div>
+      <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Используйте отдельный Telegram аккаунт для рассылки, не основной</span></div>
+      <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Не снижайте delay_min ниже 15-20 секунд — риск FloodWait и блокировки</span></div>
+      <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Периодически проверяйте лог-файл на наличие повторяющихся ошибок</span></div>
+      <div class="tip-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Не запускайте несколько экземпляров скрипта одновременно с одного аккаунта</span></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+<script>
+const PYTHON_SCRIPT = `#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+╔══════════════════════════════════════════════════════════════════╗
+║          TGBlaster — Telegram Mass Sender (Userbot)             ║
+║          Библиотека: Pyrogram  |  Python 3.10+                  ║
+║          Версия: 2.0.0                                          ║
+╚══════════════════════════════════════════════════════════════════╝
+
+Описание:
+    Скрипт для автоматической рассылки сообщений со ссылками по
+    списку Telegram-чатов. Работает от имени реального аккаунта
+    (Userbot) с использованием библиотеки Pyrogram.
+
+Входные данные:
+    - config.json  — параметры запуска (API ключи, текст, ссылка)
+    - chats.json   — список юзернеймов или ссылок на чаты
+
+Особенности:
+    ✅ Авторизация по номеру телефона с сохранением сессии
+    ✅ Автовступление в открытые группы/каналы
+    ✅ Случайные задержки 30-120 сек (Anti-FloodWait)
+    ✅ Полная обработка ошибок без остановки скрипта
+    ✅ Форматирование HTML/Markdown + управление превью ссылок
+    ✅ Детальное логирование в консоль и лог-файл
+    ✅ Итоговая статистика рассылки
+"""
+
+import asyncio
+import json
+import logging
+import random
+import sys
+from datetime import datetime
+from pathlib import Path
+
+# Установка: pip install pyrogram tgcrypto
+try:
+    from pyrogram import Client
+    from pyrogram.errors import (
+        FloodWait,            # Превышен лимит запросов
+        ChatWriteForbidden,   # Нет прав писать в чат
+        UserBannedInChannel,  # Аккаунт забанен в канале
+        ChannelPrivate,       # Приватный канал/группа
+        UsernameNotOccupied,  # Юзернейм не существует
+        UsernameInvalid,      # Некорректный юзернейм
+        PeerIdInvalid,        # Неверный ID чата
+        InviteHashExpired,    # Устаревшая ссылка-приглашение
+        UserNotParticipant,   # Аккаунт не является участником
+        ChatAdminRequired,    # Требуются права администратора
+    )
+except ImportError:
+    print("❌ Ошибка: Pyrogram не установлен!")
+    print("   Выполните: pip install pyrogram tgcrypto")
+    sys.exit(1)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# НАСТРОЙКА ЛОГИРОВАНИЯ
+# ═══════════════════════════════════════════════════════════════════
+
+def setup_logging(log_file: str = "tgblaster.log") -> logging.Logger:
+    """
+    Настраивает двойное логирование:
+    - В консоль (с цветным форматированием через эмодзи)
+    - В файл (с полными временными метками)
+    """
+    logger = logging.getLogger("TGBlaster")
+    logger.setLevel(logging.DEBUG)
+
+    file_formatter = logging.Formatter(
+        fmt="%(asctime)s | %(levelname)-8s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    console_formatter = logging.Formatter(fmt="%(message)s")
+
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(file_formatter)
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(console_formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    return logger
+
+
+# ═══════════════════════════════════════════════════════════════════
+# ЗАГРУЗКА КОНФИГУРАЦИИ
+# ═══════════════════════════════════════════════════════════════════
+
+def load_config(config_path: str = "config.json") -> dict:
+    """
+    Загружает конфигурацию из JSON-файла.
+    Ожидаемая структура config.json:
+    {
+        "api_id": 12345678,
+        "api_hash": "ваш_api_hash",
+        "phone_number": "+79001234567",
+        "session_name": "tgblaster_session",
+        "message_text": "Текст сообщения с {link}",
+        "target_url": "https://example.com",
+        "parse_mode": "html",
+        "disable_web_page_preview": false,
+        "delay_min": 30,
+        "delay_max": 120,
+        "auto_join": true,
+        "log_file": "tgblaster.log"
+    }
+    """
+    path = Path(config_path)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Файл конфигурации не найден: {config_path}\\n"
+            "Создайте config.json по образцу из документации."
+        )
+    with open(path, "r", encoding="utf-8") as f:
+        config = json.load(f)
+
+    required_fields = ["api_id", "api_hash", "phone_number", "message_text", "target_url"]
+    for field in required_fields:
+        if field not in config:
+            raise ValueError(f"Отсутствует обязательное поле в config.json: '{field}'")
+
+    config.setdefault("session_name", "tgblaster_session")
+    config.setdefault("parse_mode", "html")
+    config.setdefault("disable_web_page_preview", False)
+    config.setdefault("delay_min", 30)
+    config.setdefault("delay_max", 120)
+    config.setdefault("auto_join", True)
+    config.setdefault("log_file", "tgblaster.log")
+    return config
+
+
+# ═══════════════════════════════════════════════════════════════════
+# ЗАГРУЗКА СПИСКА ЧАТОВ
+# ═══════════════════════════════════════════════════════════════════
+
+def load_chats(chats_path: str = "chats.json") -> list[str]:
+    """
+    Загружает список чатов из JSON-файла.
+    Поддерживаемые форматы:
+    - "@username"          → публичный чат по юзернейму
+    - "https://t.me/name" → полная ссылка на чат
+    - "t.me/name"         → короткая ссылка
+    """
+    path = Path(chats_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Файл со списком чатов не найден: {chats_path}")
+    with open(path, "r", encoding="utf-8") as f:
+        chats = json.load(f)
+    if not isinstance(chats, list):
+        raise ValueError("chats.json должен содержать JSON-массив строк.")
+
+    normalized = []
+    seen = set()
+    for chat in chats:
+        chat = str(chat).strip()
+        if not chat:
+            continue
+        if chat.startswith("https://t.me/"):
+            chat = "@" + chat.replace("https://t.me/", "")
+        elif chat.startswith("t.me/"):
+            chat = "@" + chat.replace("t.me/", "")
+        elif not chat.startswith("@"):
+            chat = "@" + chat
+        chat = chat.rstrip("/")
+        if chat not in seen:
+            seen.add(chat)
+            normalized.append(chat)
+    return normalized
+
+
+# ═══════════════════════════════════════════════════════════════════
+# ФОРМАТИРОВАНИЕ СООБЩЕНИЯ
+# ═══════════════════════════════════════════════════════════════════
+
+def format_message(template: str, url: str, parse_mode: str) -> str:
+    """
+    Форматирует финальный текст сообщения.
+    Плейсхолдеры в шаблоне:
+    - {link} → кликабельная ссылка (HTML или Markdown)
+    - {url}  → голый URL
+
+    HTML пример:
+        "Привет! Посмотри <a href='{url}'>наш сайт</a> 🔥"
+    Markdown пример:
+        "Привет! Посмотри [наш сайт]({url}) 🔥"
+    """
+    if parse_mode.lower() == "html":
+        link_html = f'<a href="{url}">🔗 Перейти по ссылке</a>'
+        message = template.format(link=link_html, url=url)
+    elif parse_mode.lower() in ("markdown", "md"):
+        link_md = f"[🔗 Перейти по ссылке]({url})"
+        message = template.format(link=link_md, url=url)
+    else:
+        message = template.format(link=url, url=url)
+    return message
+
+
+# ═══════════════════════════════════════════════════════════════════
+# ОСНОВНОЙ КЛАСС РАССЫЛЬЩИКА
+# ═══════════════════════════════════════════════════════════════════
+
+class TelegramBlaster:
+    """
+    Основной класс для управления рассылкой сообщений.
+
+    Атрибуты:
+        config  — загруженная конфигурация
+        chats   — список юзернеймов чатов
+        logger  — логгер
+        client  — Pyrogram клиент
+        stats   — словарь со статистикой рассылки
+    """
+
+    def __init__(self, config: dict, chats: list[str], logger: logging.Logger):
+        self.config = config
+        self.chats = chats
+        self.logger = logger
+        self.stats = {
+            "total": len(chats),
+            "success": 0,
+            "failed": 0,
+            "skipped": 0,
+            "errors": [],
+        }
+        # Инициализация Pyrogram клиента
+        self.client = Client(
+            name=config["session_name"],     # Имя файла сессии (.session)
+            api_id=config["api_id"],         # API ID с my.telegram.org
+            api_hash=config["api_hash"],     # API Hash с my.telegram.org
+            phone_number=config["phone_number"],
+            # Прокси (раскомментировать при необходимости):
+            # proxy={
+            #     "scheme": "socks5",
+            #     "hostname": "127.0.0.1",
+            #     "port": 1080,
+            # }
+        )
+
+    async def join_chat_if_needed(self, chat_username: str) -> bool:
+        """
+        Пробует вступить в чат, если аккаунт ещё не является участником.
+        Возвращает True если успешно или уже участник, False при ошибке.
+        """
+        try:
+            await self.client.join_chat(chat_username)
+            self.logger.info(f"  ➕ Вступили в чат: {chat_username}")
+            await asyncio.sleep(random.uniform(3, 7))
+            return True
+        except UserNotParticipant:
+            return True  # Уже участник
+        except (ChannelPrivate, InviteHashExpired) as e:
+            self.logger.warning(f"  ⛔ Приватный/недоступный чат {chat_username}: {e}")
+            return False
+        except (UsernameNotOccupied, UsernameInvalid, PeerIdInvalid) as e:
+            self.logger.warning(f"  ❓ Чат не найден {chat_username}: {e}")
+            return False
+        except FloodWait as e:
+            wait_time = e.value + random.randint(5, 15)
+            self.logger.warning(
+                f"  ⏳ FloodWait при вступлении в {chat_username}: ждём {wait_time}с..."
+            )
+            await asyncio.sleep(wait_time)
+            return False
+        except Exception as e:
+            self.logger.debug(f"  ⚠ join_chat {chat_username}: {type(e).__name__}: {e}")
+            return True  # Возможно уже участник
+
+    async def send_to_chat(self, chat_username: str, message: str) -> bool:
+        """
+        Отправляет сообщение в указанный чат.
+
+        Логика:
+        1. Если включён auto_join — вступает в чат
+        2. Отправляет форматированное сообщение
+        3. При FloodWait — ждёт и делает 1 повторную попытку
+        4. При других ошибках — логирует и возвращает False
+        """
+        if self.config["auto_join"]:
+            joined = await self.join_chat_if_needed(chat_username)
+            if not joined:
+                return False
+
+        parse_mode_map = {
+            "html": "html", "markdown": "md",
+            "md": "md", "none": None, "disabled": None,
+        }
+        pm = parse_mode_map.get(self.config["parse_mode"].lower(), "html")
+
+        try:
+            await self.client.send_message(
+                chat_id=chat_username,
+                text=message,
+                parse_mode=pm,
+                disable_web_page_preview=self.config["disable_web_page_preview"],
+            )
+            return True
+
+        except FloodWait as e:
+            # Telegram сообщает сколько секунд нужно ждать
+            wait_time = e.value + random.randint(10, 30)
+            self.logger.warning(
+                f"  ⏳ [FloodWait] Ждём {wait_time}с для {chat_username}..."
+            )
+            await asyncio.sleep(wait_time)
+            # Одна повторная попытка
+            try:
+                await self.client.send_message(
+                    chat_id=chat_username, text=message,
+                    parse_mode=pm,
+                    disable_web_page_preview=self.config["disable_web_page_preview"],
+                )
+                self.logger.info(f"  ✅ Повторная попытка успешна для {chat_username}")
+                return True
+            except Exception as retry_e:
+                self.logger.error(
+                    f"  ❌ Повторная попытка провалилась: {type(retry_e).__name__}: {retry_e}"
+                )
+                return False
+
+        except ChatWriteForbidden:
+            self.logger.error(f"  🚫 Нет прав на отправку в {chat_username}")
+            return False
+        except UserBannedInChannel:
+            self.logger.error(f"  🔨 Аккаунт заблокирован в {chat_username}")
+            return False
+        except ChatAdminRequired:
+            self.logger.error(f"  👑 Нужны права администратора в {chat_username}")
+            return False
+        except ChannelPrivate:
+            self.logger.error(f"  🔒 Приватный канал, нет доступа: {chat_username}")
+            return False
+        except (UsernameNotOccupied, UsernameInvalid, PeerIdInvalid):
+            self.logger.error(f"  ❓ Чат не найден или невалидный: {chat_username}")
+            return False
+        except Exception as e:
+            self.logger.error(
+                f"  💥 Неожиданная ошибка при отправке в {chat_username}: "
+                f"{type(e).__name__}: {e}"
+            )
+            return False
+
+    async def run(self):
+        """Основной цикл рассылки."""
+        message = format_message(
+            template=self.config["message_text"],
+            url=self.config["target_url"],
+            parse_mode=self.config["parse_mode"],
+        )
+
+        self.logger.info("")
+        self.logger.info("═" * 60)
+        self.logger.info("  🚀 TGBlaster запущен")
+        self.logger.info(f"  📋 Всего чатов: {self.stats['total']}")
+        self.logger.info(f"  🔗 Целевая ссылка: {self.config['target_url']}")
+        self.logger.info(
+            f"  ⏱  Задержка: {self.config['delay_min']}–{self.config['delay_max']} сек"
+        )
+        self.logger.info(f"  🕐 Начало: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        self.logger.info("═" * 60)
+
+        async with self.client:
+            me = await self.client.get_me()
+            self.logger.info(
+                f"✅ Авторизован как: {me.first_name} "
+                f"(@{me.username or 'без юзернейма'}) | ID: {me.id}"
+            )
+
+            for index, chat_username in enumerate(self.chats, start=1):
+                progress = f"[{index}/{self.stats['total']}]"
+                self.logger.info("─" * 50)
+                self.logger.info(f"📤 {progress} Отправка в: {chat_username}")
+
+                success = await self.send_to_chat(chat_username, message)
+
+                if success:
+                    self.stats["success"] += 1
+                    self.logger.info(
+                        f"  ✅ [Успешно] Сообщение отправлено в {chat_username}"
+                    )
+                else:
+                    self.stats["failed"] += 1
+                    self.stats["errors"].append(chat_username)
+                    self.logger.error(
+                        f"  ❌ [Ошибка] Не удалось отправить в {chat_username}"
+                    )
+
+                # Рандомная пауза между отправками
+                if index < self.stats["total"]:
+                    delay = random.uniform(
+                        self.config["delay_min"],
+                        self.config["delay_max"]
+                    )
+                    self.logger.info(
+                        f"  💤 Пауза {delay:.1f} сек перед следующей отправкой..."
+                    )
+                    await asyncio.sleep(delay)
+
+        self._print_summary()
+
+    def _print_summary(self):
+        """Выводит итоговую статистику рассылки."""
+        self.logger.info("")
+        self.logger.info("═" * 60)
+        self.logger.info("  📊 ИТОГОВАЯ СТАТИСТИКА РАССЫЛКИ")
+        self.logger.info("═" * 60)
+        self.logger.info(f"  📋 Всего чатов:  {self.stats['total']}")
+        self.logger.info(f"  ✅ Успешно:      {self.stats['success']}")
+        self.logger.info(f"  ❌ Ошибок:       {self.stats['failed']}")
+        self.logger.info(f"  ⏭  Пропущено:    {self.stats['skipped']}")
+        if self.stats["total"] > 0:
+            pct = self.stats["success"] / self.stats["total"] * 100
+            self.logger.info(f"  📈 Успешность:   {pct:.1f}%")
+        self.logger.info(f"  🕐 Завершено:    {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        if self.stats["errors"]:
+            self.logger.info("")
+            self.logger.info("  ❌ Чаты с ошибками:")
+            for err_chat in self.stats["errors"]:
+                self.logger.info(f"     • {err_chat}")
+        self.logger.info("═" * 60)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# ТОЧКА ВХОДА
+# ═══════════════════════════════════════════════════════════════════
+
+async def main():
+    """Главная асинхронная функция — точка входа."""
+    print("\\n" + "═" * 60)
+    print("  🤖 TGBlaster v2.0.0 — Telegram Mass Sender")
+    print("  Powered by Pyrogram")
+    print("═" * 60 + "\\n")
+
+    try:
+        config = load_config("config.json")
+        print("✅ Конфигурация загружена из config.json")
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as e:
+        print(f"❌ Ошибка загрузки конфигурации: {e}")
+        sys.exit(1)
+
+    logger = setup_logging(config["log_file"])
+
+    try:
+        chats = load_chats("chats.json")
+        logger.info(f"✅ Загружено {len(chats)} чатов из chats.json")
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as e:
+        logger.error(f"❌ Ошибка загрузки списка чатов: {e}")
+        sys.exit(1)
+
+    if not chats:
+        logger.error("❌ Список чатов пуст! Добавьте юзернеймы в chats.json")
+        sys.exit(1)
+
+    print(f"\\n⚠️  Будет выполнена рассылка в {len(chats)} чат(ов).")
+    print(f"   Целевая ссылка: {config['target_url']}")
+    print(f"   Задержки: {config['delay_min']}–{config['delay_max']} сек\\n")
+
+    confirm = input("Продолжить? (да/нет): ").strip().lower()
+    if confirm not in ("да", "yes", "y", "д"):
+        print("\\n🛑 Рассылка отменена.")
+        sys.exit(0)
+
+    blaster = TelegramBlaster(config=config, chats=chats, logger=logger)
+
+    try:
+        await blaster.run()
+    except KeyboardInterrupt:
+        logger.warning("\\n⚠️  Рассылка прервана пользователем (Ctrl+C)")
+        blaster._print_summary()
+        sys.exit(0)
+    except Exception as e:
+        logger.critical(f"\\n💥 Критическая ошибка: {type(e).__name__}: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+`;
+
+const CONFIG_FIELDS = [
+  { key:"api_id", type:"number", required:true, sensitive:true, description:"Числовой API ID приложения Telegram (с my.telegram.org)", example:"12345678" },
+  { key:"api_hash", type:"string", required:true, sensitive:true, description:"API Hash приложения Telegram (с my.telegram.org)", example:"a1b2c3d4e5f6..." },
+  { key:"phone_number", type:"string", required:true, sensitive:true, description:"Номер телефона аккаунта в международном формате", example:"+79001234567" },
+  { key:"session_name", type:"string", required:false, defaultValue:"tgblaster_session", description:"Имя файла сессии (.session). Менять не обязательно.", example:"my_session" },
+  { key:"message_text", type:"string", required:true, description:"Шаблон сообщения. Используйте {link} — кликабельная ссылка, {url} — голый URL", example:"Привет! Смотри {link} 🔥", multiline:true },
+  { key:"target_url", type:"string", required:true, description:"Целевая ссылка, которая будет вшита в сообщение", example:"https://example.com/promo" },
+  { key:"parse_mode", type:"string", required:false, defaultValue:"html", description:"Режим форматирования: html, markdown (md), или none", enum:["html","markdown","none"] },
+  { key:"disable_web_page_preview", type:"boolean", required:false, defaultValue:false, description:"Отключить превью ссылки в сообщении (true = без превью)" },
+  { key:"delay_min", type:"number", required:false, defaultValue:30, description:"Минимальная задержка между отправками (в секундах)", example:"30" },
+  { key:"delay_max", type:"number", required:false, defaultValue:120, description:"Максимальная задержка между отправками (в секундах)", example:"120" },
+  { key:"auto_join", type:"boolean", required:false, defaultValue:true, description:"Автоматически вступать в открытые чаты перед отправкой" },
+  { key:"log_file", type:"string", required:false, defaultValue:"tgblaster.log", description:"Имя файла для записи логов", example:"tgblaster.log" }
+];
+
+let configValues = {};
+CONFIG_FIELDS.forEach(f=>{
+  configValues[f.key] = f.defaultValue !== undefined ? String(f.defaultValue) :
+    (f.key==="message_text" ? "👋 Привет! Посмотри {link} 🔥" :
+    f.key==="target_url" ? "https://example.com/your-link" : "");
+});
+
+let showSensitive = false;
+let chats = ["@python_ru","@django_framework","@aiogram_ru","https://t.me/some_public_chat","t.me/another_public_group","@devops_chat","@linux_ru_chat"];
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.tab-content').forEach(s=>s.classList.toggle('active', s.id===tab));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+document.getElementById('python-code').textContent = PYTHON_SCRIPT;
+
+function renderConfigFields(){
+  const container = document.getElementById('config-fields');
+  container.innerHTML = '';
+  CONFIG_FIELDS.forEach(f=>{
+    if(f.sensitive && !showSensitive){
+      container.innerHTML += `
+        <div class="field">
+          <div class="field-head">
+            <span class="field-name">${f.key}</span>
+            <span class="field-type t-${f.type}">${f.type}</span>
+            <span class="tag tag-req">обязательное</span>
+            <span class="tag tag-sens">🔐 чувствительное</span>
+          </div>
+          <div class="field-desc">${f.description}</div>
+          <div style="display:flex;align-items:center;gap:8px;color:#7d8590;background:#21262d;padding:8px 12px;border-radius:8px;font-size:13px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            Скрыто (нажмите "Показать чувствительные поля")
+          </div>
+        </div>`;
+      return;
+    }
+    const reqTag = f.required
+      ? '<span class="tag tag-req">обязательное</span>'
+      : '<span class="tag tag-opt">опциональное</span>';
+    const sensTag = f.sensitive ? '<span class="tag tag-sens">🔐 чувствительное</span>' : '';
+    const defTag = f.defaultValue !== undefined
+      ? `<span class="field-default">По умолчанию: <code style="color:#c9d1d9;background:transparent;padding:0">${f.defaultValue}</code></span>` : '';
+    const example = f.example ? `<div class="field-example">Пример: <code style="color:#c9d1d9;background:transparent;padding:0">${f.example}</code></div>` : '';
+
+    let input;
+    if(f.type==="boolean"){
+      input = `<select data-key="${f.key}" onchange="configValues[this.dataset.key]=this.value">
+        <option value="true" ${configValues[f.key]==="true"?"selected":""}>true (да)</option>
+        <option value="false" ${configValues[f.key]==="false"?"selected":""}>false (нет)</option>
+      </select>`;
+    } else if(f.enum){
+      input = `<select data-key="${f.key}" onchange="configValues[this.dataset.key]=this.value">
+        ${f.enum.map(v=>`<option value="${v}" ${configValues[f.key]===v?"selected":""}>${v}</option>`).join('')}
+      </select>`;
+    } else if(f.multiline){
+      input = `<textarea data-key="${f.key}" rows="4" placeholder="${f.example||''}" oninput="configValues[this.dataset.key]=this.value">${escapeHtml(configValues[f.key])}</textarea>`;
+    } else {
+      input = `<input type="${f.type==="number"?"number":"text"}" data-key="${f.key}" value="${escapeHtml(configValues[f.key])}" placeholder="${f.example||''}" oninput="configValues[this.dataset.key]=this.value">`;
+    }
+
+    container.innerHTML += `
+      <div class="field ${f.required?'required':''}">
+        <div class="field-head">
+          <span class="field-name">${f.key}</span>
+          <span class="field-type t-${f.type}">${f.type}</span>
+          ${reqTag}${sensTag}
+          ${defTag}
+        </div>
+        <div class="field-desc">${f.description}</div>
+        ${example}
+        ${input}
+      </div>`;
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function toggleSensitive(){
+  showSensitive = !showSensitive;
+  document.getElementById('sensitive-icon-off').classList.toggle('hidden', showSensitive);
+  document.getElementById('sensitive-icon-on').classList.toggle('hidden', !showSensitive);
+  document.getElementById('sensitive-text').textContent = showSensitive ? 'Скрыть' : 'Показать';
+  renderConfigFields();
+}
+
+function generateConfig(){
+  const cfg = {};
+  CONFIG_FIELDS.forEach(f=>{
+    let v = configValues[f.key];
+    if(f.type==="number") v = parseFloat(v)||0;
+    else if(f.type==="boolean") v = v === "true";
+    cfg[f.key] = v;
+  });
+  const json = JSON.stringify(cfg, null, 2);
+  document.getElementById('config-output-json').textContent = json;
+  document.getElementById('config-output').classList.remove('hidden');
+  if(window.Prism) Prism.highlightElement(document.getElementById('config-output-json'));
+}
+
+function normalizeChat(raw){
+  let c = String(raw).trim();
+  if(!c) return "";
+  if(c.startsWith("https://t.me/")) c = "@" + c.replace("https://t.me/","");
+  else if(c.startsWith("t.me/")) c = "@" + c.replace("t.me/","");
+  else if(!c.startsWith("@")) c = "@" + c;
+  return c.replace(/\/+$/,"");
+}
+function validateChat(c){
+  if(!c) return "invalid";
+  const n = normalizeChat(c);
+  if(!n.startsWith("@")) return "invalid";
+  const u = n.slice(1);
+  if(u.length < 4) return "warning";
+  if(!/^[a-zA-Z0-9_]+$/.test(u)) return "warning";
+  return "valid";
+}
+
+function renderChats(){
+  const list = document.getElementById('chat-list');
+  const out = document.getElementById('chats-output');
+  const validCount = chats.filter(c=>validateChat(c)==="valid").length;
+  const warnCount = chats.length - validCount;
+  document.getElementById('stat-total').textContent = chats.length;
+  document.getElementById('stat-valid').textContent = validCount;
+  document.getElementById('stat-warn').textContent = warnCount;
+  document.getElementById('list-count').textContent = chats.length;
+
+  if(chats.length===0){
+    list.innerHTML = `<div style="border:1px dashed #30363d;border-radius:12px;padding:32px;text-align:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#484f58" stroke-width="2" width="32" height="32" style="margin:0 auto 8px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+      <div style="color:#7d8590;font-size:13px">Список чатов пуст</div>
+      <div style="color:#484f58;font-size:12px">Добавьте чаты выше</div>
+    </div>`;
+    out.classList.add('hidden');
+    return;
+  }
+
+  list.innerHTML = `<div class="chat-list">${chats.map((c,i)=>{
+    const s = validateChat(c);
+    const icon = s==="valid"
+      ? '<svg class="chat-status" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>'
+      : '<svg class="chat-status" viewBox="0 0 24 24" fill="none" stroke="#d29922" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+    return `<div class="chat-row">
+      <span class="chat-num">${i+1}</span>
+      ${icon}
+      <code class="chat-name">${escapeHtml(c)}</code>
+      <span class="chat-norm">${escapeHtml(normalizeChat(c))}</span>
+      <button class="chat-del" onclick="removeChat(${i})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+    </div>`;
+  }).join('')}</div>`;
+
+  out.classList.remove('hidden');
+  document.getElementById('chats-output-json').textContent = JSON.stringify(chats, null, 2);
+  if(window.Prism) Prism.highlightElement(document.getElementById('chats-output-json'));
+}
+
+function addChat(){
+  const input = document.getElementById('chat-input');
+  const n = normalizeChat(input.value);
+  if(!n) return;
+  if(!chats.includes(n)) chats.push(n);
+  input.value = '';
+  renderChats();
+}
+
+function addBulk(){
+  const ta = document.getElementById('bulk-area');
+  const lines = ta.value.split(/[\n,;]+/).map(l=>normalizeChat(l)).filter(l=>l!=="");
+  lines.forEach(l=>{ if(!chats.includes(l)) chats.push(l); });
+  ta.value = '';
+  renderChats();
+}
+
+function removeChat(i){
+  chats.splice(i,1);
+  renderChats();
+}
+
+function clearChats(){
+  chats = [];
+  renderChats();
+}
+
+function copyCode(id){
+  const el = document.getElementById(id);
+  const text = el.innerText || el.textContent;
+  copyText(text);
+}
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>{
+    showNotification('✅ Скопировано в буфер обмена!');
+  });
+}
+function downloadCode(id, filename){
+  const el = document.getElementById(id);
+  const text = el.innerText || el.textContent;
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  showNotification(`💾 Файл ${filename} скачан`);
+}
+
+function showNotification(msg){
+  const n = document.createElement('div');
+  n.textContent = msg;
+  n.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#2ea043;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,.4);animation:fadeIn .2s';
+  document.body.appendChild(n);
+  setTimeout(()=>{ n.style.transition='opacity .3s'; n.style.opacity='0'; setTimeout(()=>n.remove(),300); }, 2000);
+}
+
+renderConfigFields();
+renderChats();
+if(window.Prism) Prism.highlightAll();
+</script>
+</body>
+</html>
